@@ -3,25 +3,39 @@ import org.specs2.mutable.Specification
 
 trait Slide2 {
 
-  /** An ordered collection of elements. */
+  /**
+   * An ordered collection of elements.
+   */
   trait Collection[A] {
-    /* Apply an associative function to combine the collection of values to a single value. */
-    def combine(f: Reduction[A]): A
+    /**
+     * Apply an associative function to combine the collection of values to a single value.
+     */
+    def combine(r: Reduction[A]): A
   }
 
-  object Collection {
+  object Collection extends Collections
+  trait Collections {
+    /**
+     * Construct a collection from a sequence of elements.
+     */
     def apply[A](x: A*): Collection[A] = new Collection[A] {
-      def combine(f: Reduction[A]): A = x.reduce(f.reduce)
+      def combine(r: Reduction[A]): A = x.reduce(r.reduce)
     }
   }
 
 
-  /* An associative binary operator on values of type A. */
+  /**
+   * An associative binary operator on values of type `A`.
+   */
   trait Reduction[A] {
     val reduce: (A, A) => A
   }
 
-  object Reduction {
+  object Reduction extends Reductions
+  trait Reductions {
+    /**
+     * Construct a reduction from the given binary operation.
+     */
     def apply[A](f: (A, A) => A): Reduction[A] = new Reduction[A] {
       val reduce = f
     }
@@ -34,6 +48,9 @@ trait Slide2 {
 
 
 
+/**
+ * Usage examples.
+ */
 class Slide2Spec extends Specification with Slide2 {
 
   "Combining integers" >> {
@@ -49,6 +66,7 @@ class Slide2Spec extends Specification with Slide2 {
     }
   }
 
+
   "Combining strings" >> {
 
     val beers = Collection("Pilsner", "IPA", "Stout", "Bitter")
@@ -62,6 +80,7 @@ class Slide2Spec extends Specification with Slide2 {
       shortest must_== "IPA"
     }
   }
+
 
   "Combining vector points" >> {
 
@@ -86,13 +105,19 @@ class Slide2Spec extends Specification with Slide2 {
   }
 
 
-  "Can combine a case class" >> {
-    case class Foo(a: Int, b: Int, c: Int)
-    val foos = Collection(Foo(3, 4, 2), Foo(-2, 6, 3), Foo(1, 8, 4), Foo(0, -9, 2))
-    val stats = foos.combine(Reduction { case (Foo(a1, b1, c1), Foo(a2, b2, c2)) =>
-      Foo(a1 + a2, b1 max b2, c1 min c2)// easy to make an error here
-    })
-    stats must_== Foo(2, 8, 2)
+  "Can combine tuples" >> {
+
+    "Sum and max over pairs" >> {
+      val pairs = Collection((3, 4), (-2, 6), (1, 8), (0, -9))
+      val stats = pairs.combine(Reduction { case ((a1, b1), (a2, b2)) => ((a1 + a2), (b1 max b2)) })
+      stats must_== (2, 8)
+    }
+
+    "Sum, max and min over triples" >> {
+      val triples = Collection((3, 4, 2), (-2, 6, 3), (1, 8, 4), (0, -9, 2))
+      val stats = triples.combine(Reduction { case ((a1, b1, c1), (a2, b2, c2)) => ((a1 + a2), (b1 max b2), (c1 min c2)) })
+      stats must_== (2, 8, 2)
+    }
   }
 
 

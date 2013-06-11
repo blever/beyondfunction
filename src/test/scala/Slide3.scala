@@ -4,25 +4,32 @@ import scalaz._, Scalaz._
 
 trait Slide3 {
 
-  /** An ordered collection of elements. */
+  /**
+   * An ordered collection of elements.
+   */
   trait Collection[A] {
-    /* Apply an associative function to combine the collection of values to a single value. */
-    def combine(f: Reduction[A]): A
+    /**
+     * Apply an associative function to combine the collection of values to a single value.
+     */
+    def combine(r: Reduction[A]): A
   }
 
-  object Collection {
+  object Collection extends Collections
+  trait Collections {
+    /**
+     * Construct a collection from a sequence of elements.
+     */
     def apply[A](x: A*): Collection[A] = new Collection[A] {
-      def combine(f: Reduction[A]): A = x.reduce(f.reduce)
+      def combine(r: Reduction[A]): A = x.reduce(r.reduce)
     }
   }
 
 
-  /* An associative binary operator on values of type A. */
+  /**
+   * An associative binary operator on values of type `A`.
+   */
   trait Reduction[A] {
     val reduce: (A, A) => A
-
-    def xmap[B](f: A => B, g: B => A): Reduction[B] =
-      Reduction((b1, b2) => f(reduce(g(b1), g(b2))))
 
     def zip[B](r: Reduction[B]): Reduction[(A, B)] =
       Reduction {
@@ -33,9 +40,16 @@ trait Slide3 {
       Reduction {
         case ((a1, b1, c1), (a2, b2, c2)) => (reduce(a1, a2), b.reduce(b1, b2), c.reduce(c1, c2))
       }
+
+    def xmap[B](f: A => B, g: B => A): Reduction[B] =
+      Reduction((b1, b2) => f(reduce(g(b1), g(b2))))
   }
 
-  object Reduction {
+  object Reduction extends Reductions
+  trait Reductions {
+    /**
+     * Construct a reduction from the given binary operation.
+     */
     def apply[A](f: (A, A) => A): Reduction[A] = new Reduction[A] {
       val reduce = f
     }
@@ -68,6 +82,9 @@ trait Slide3 {
 
 
 
+/**
+ * Usage examples.
+ */
 class Slide3Spec extends Specification with Slide3 {
 
   import Reduction._
@@ -138,6 +155,7 @@ class Slide3Spec extends Specification with Slide3 {
       stats must_== (2, 8, 2)
     }
   }
+
 
   "Can compute the union of a collection of Maps" >> {
     val maps = Collection(

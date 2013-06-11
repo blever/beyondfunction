@@ -3,13 +3,21 @@ import org.specs2.mutable.Specification
 
 trait Slide1 {
 
-  /** An ordered collection of elements. */
+  /**
+   * An ordered collection of elements.
+   */
   trait Collection[A] {
-    /* Apply an associative function to combine the collection of values to a single value. */
+    /**
+     * Apply an associative function to combine the collection of values to a single value.
+     */
     def combine(f: (A, A) => A): A
   }
 
-  object Collection {
+  object Collection extends Collections
+  trait Collections {
+    /**
+     * Construct a collection from a sequence of elements.
+     */
     def apply[A](x: A*): Collection[A] = new Collection[A] {
       def combine(f: (A, A) => A): A = x.reduce(f)
     }
@@ -20,7 +28,9 @@ trait Slide1 {
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 
-
+/**
+ * Usage examples.
+ */
 class Slide1Spec extends Specification with Slide1 {
 
   "Combining integers" >> {
@@ -36,6 +46,7 @@ class Slide1Spec extends Specification with Slide1 {
     }
   }
 
+
   "Combining strings" >> {
 
     val beers = Collection("Pilsner", "IPA", "Stout", "Bitter")
@@ -49,6 +60,7 @@ class Slide1Spec extends Specification with Slide1 {
       shortest must_== "IPA"
     }
   }
+
 
   "Combining vector points" >> {
 
@@ -73,13 +85,19 @@ class Slide1Spec extends Specification with Slide1 {
   }
 
 
-  "Can combine a case class" >> {
-    case class Foo(a: Int, b: Int, c: Int)
-    val foos = Collection(Foo(3, 4, 2), Foo(-2, 6, 3), Foo(1, 8, 4), Foo(0, -9, 2))
-    val stats = foos.combine { case (Foo(a1, b1, c1), Foo(a2, b2, c2)) =>
-      Foo(a1 + a2, b1 max b2, c1 min c2)  // easy to make an error here
+  "Can combine tuples" >> {
+
+    "Sum and max over pairs" >> {
+      val pairs = Collection((3, 4), (-2, 6), (1, 8), (0, -9))
+      val stats = pairs.combine { case ((a1, b1), (a2, b2)) => ((a1 + a2), (b1 max b2)) }
+      stats must_== (2, 8)
     }
-    stats must_== Foo(2, 8, 2)
+
+    "Sum, max and min over triples" >> {
+      val triples = Collection((3, 4, 2), (-2, 6, 3), (1, 8, 4), (0, -9, 2))
+      val stats = triples.combine { case ((a1, b1, c1), (a2, b2, c2)) => ((a1 + a2), (b1 max b2), (c1 min c2)) }
+      stats must_== (2, 8, 2)
+    }
   }
 
 
