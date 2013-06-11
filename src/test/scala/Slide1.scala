@@ -42,8 +42,9 @@ class Slide1Spec extends Specification with Slide1 {
     }
 
     "Can compute the maximum" >> {
-      ints.combine(_ max _) must_== 6
-    }
+      val biggest: Int = ???
+      biggest must_== 6
+    }.pendingUntilFixed
   }
 
 
@@ -56,9 +57,9 @@ class Slide1Spec extends Specification with Slide1 {
     }
 
     "Can get the shortest" >> {
-      val shortest = beers.combine((s1, s2) => if (s2.length > s1.length) s1 else s2)
+      val shortest: String = ???
       shortest must_== "IPA"
-    }
+    }.pendingUntilFixed
   }
 
 
@@ -68,9 +69,9 @@ class Slide1Spec extends Specification with Slide1 {
     val points = Collection(Point(3, 4), Point(1, 2), Point(-2, -3))
 
     "Can compute the sum" >> {
-      val summed = points.combine { case ((Point(x1, y1), Point(x2, y2))) => Point(x1 + x2, y1 + y2) }
+      val summed: Point = ???
       summed must_== Point(2, 3)
-    }
+    }.pendingUntilFixed
 
     "Can compute the minimum" >> {
       def distance(p: Point): Double = math.abs(math.sqrt((p.x * p.x) + (p.y * p.y)))
@@ -89,15 +90,15 @@ class Slide1Spec extends Specification with Slide1 {
 
     "Sum and max over pairs" >> {
       val pairs = Collection((3, 4), (-2, 6), (1, 8), (0, -9))
-      val stats = pairs.combine { case ((a1, b1), (a2, b2)) => ((a1 + a2), (b1 max b2)) }
+      val stats: (Int, Int) = ???
       stats must_== (2, 8)
-    }
+    }.pendingUntilFixed
 
     "Sum, max and min over triples" >> {
       val triples = Collection((3, 4, 2), (-2, 6, 3), (1, 8, 4), (0, -9, 2))
-      val stats = triples.combine { case ((a1, b1, c1), (a2, b2, c2)) => ((a1 + a2), (b1 max b2), (c1 min c2)) }
+      val stats: (Int, Int, Int) = ???
       stats must_== (2, 8, 2)
-    }
+    }.pendingUntilFixed
   }
 
 
