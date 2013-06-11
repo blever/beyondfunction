@@ -33,9 +33,6 @@ trait Slide3 {
       Reduction {
         case ((a1, b1, c1), (a2, b2, c2)) => (reduce(a1, a2), b.reduce(b1, b2), c.reduce(c1, c2))
       }
-
-    def pointwise[B]: Reduction[B => A] =
-      Reduction((g, h) => b => reduce(g(b), h(b)))
   }
 
   object Reduction {
@@ -74,23 +71,6 @@ trait Slide3 {
 class Slide3Spec extends Specification with Slide3 {
 
   import Reduction._
-
-  "pointwise?" >> {
-    case class Foo(x: Int)
-    val pw: Reduction[Foo => Int] = Sum.int.pointwise
-
-    val ff: Collection[Foo => Int] =
-      Collection(
-        (f: Foo) => f.x,
-        (f: Foo) => f.x + 1,
-        (f: Foo) => 3,
-        (f: Foo) => f.x * 4)
-
-    val r: Foo => Int = ff.combine(pw)
-
-    r(Foo(3)) must_== 22
-
-  }
 
   "Combining integers" >> {
 
