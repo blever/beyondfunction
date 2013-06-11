@@ -124,13 +124,13 @@ class Slide4Spec extends Specification with ScalaCheck with Slide4 {
     prop { (xs: List[Int]) => xs.reverse.reverse must_== xs }
   }
 
-  "Summing over integers is associative" >> {
-    prop { (a: Int, b: Int, c: Int) => ((a + b) + c) must_== (a + (b + c)) }
-  }
-
-  "Finding the maximum integer is associative" >> {
-    prop { (a: Int, b: Int, c: Int) => ((a max b) max c) must_== (a max (b max c)) }
-  }
+//  "Summing over integers is associative" >> {
+//    prop {  }
+//  }
+//
+//  "Finding the maximum integer is associative" >> {
+//    prop {  }
+//  }
 
 
   /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -141,68 +141,56 @@ class Slide4Spec extends Specification with ScalaCheck with Slide4 {
   /**
    * Property that a Reduction must be associative.
    */
-  def reductionLaw[T](r: Reduction[T])(implicit A: Arbitrary[T]): Prop =
-    prop {
-      (a: T, b: T, c: T) => r.reduce(r.reduce(a, b), c) must_== r.reduce(a, r.reduce(b, c))
-    }
+  // TODO
 
 
-  "Minimum integer is associative" >> {
-    reductionLaw(Reduction.minimum[Int])
-  }
+//  "Minimum integer is associative" >>
 
 
-  "Combining integers" >> {
-    "Can compute the sum" >> reductionLaw(Sum.int)
-    "Can compute the maximum" >> reductionLaw(maximum[Int])
-  }
+    // 1
+//  "Combining integers" >> {
+//    "Can compute the sum" >>
+//    "Can compute the maximum" >>
+//  }
 
 
-  "Combining strings" >> {
-
-    "Can concatenate" >>
-      reductionLaw(string)
-
-    "Can get the shortest" >> {
-      val strLenOrd: Order[String] = Order.orderBy(_.length)
-      reductionLaw(minimum(strLenOrd))
-    }
-  }
-
-
-  "Combining vector points" >> {
-
-    case class Point(x: Int, y: Int)
-
-    val toPair = (p: Point) => (p.x, p.y)
-    val fromPair = (t: (Int, Int)) => Point(t._1, t._2)
-
-    implicit val genPoint: Arbitrary[Point] = Arbitrary {
-      for {
-        x <- arbitrary[Int]
-        y <- arbitrary[Int]
-      } yield Point(x, y)
-    }
-
-    "Can compute the sum" >> {
-      val pointSum: Reduction[Point] = (Sum.int zip Sum.int).xmap(fromPair, toPair)
-      reductionLaw(pointSum)
-    }
-
-    "Can compute the minimum" >> {
-      def distance(p: Point): Double = math.abs(math.sqrt((p.x * p.x) + (p.y * p.y)))
-      reductionLaw(minimum(Order.orderBy(distance)))
-    }
-  }
+    // 2
+//  "Combining strings" >> {
+//
+//    "Can concatenate" >>
+//
+//
+//    "Can get the shortest" >> {
+//    }
+//  }
 
 
-  "Can combine tuples" >> {
-    "Pairs" >> reductionLaw(Sum.int zip maximum[Int])
-    "Triples" >> reductionLaw(Sum.int.zip3(maximum[Int], minimum[Int]))
-  }
+  // 5
+//  "Combining vector points" >> {
+//
+//    case class Point(x: Int, y: Int)
+//
+//    val toPair = (p: Point) => (p.x, p.y)
+//    val fromPair = (t: (Int, Int)) => Point(t._1, t._2)
+//
+//    "Can compute the sum" >> {
+//      val pointSum: Reduction[Point] = (Sum.int zip Sum.int).xmap(fromPair, toPair)
+//    }
+//
+//    "Can compute the minimum" >> {
+//      def distance(p: Point): Double = math.abs(math.sqrt((p.x * p.x) + (p.y * p.y)))
+//    }
+//  }
 
 
-  "Can compute the union of a collection of Maps" >> {
-    reductionLaw(mapS[String, Int](Sum.int))
-  }
+  // 3
+//  "Can combine tuples" >> {
+//    "Pairs" >>
+//    "Triples" >>
+//  }
+
+
+  // 4
+//  "Can compute the union of a collection of Maps" >> {
+//  }
 }
